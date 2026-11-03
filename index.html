@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-canvas-width="390" data-canvas-height="844">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>七宗罪 × 七美德测试 · 你的原罪与光面</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon points='50,8 88,28 88,72 50,92 12,72 12,28' fill='%23171a26' stroke='%23d4af37' stroke-width='5'/%3E%3Ccircle cx='50' cy='50' r='14' fill='%23d4af37'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0a13; --bg2:#171226; --card:#1d1730; --card2:#241c3a;
+  --gold:#d4af37; --gold2:#b8860b; --ink:#e9e2cf; --mut:#9a90b3;
+  --line:rgba(212,175,55,.28);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Noto Sans SC',system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+  color:var(--ink);min-height:100vh;line-height:1.6;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+    radial-gradient(120% 90% at 50% 0%,#1c1530 0%,var(--bg2) 42%,var(--bg) 100%);
+  background-blend-mode:overlay,normal;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.view{display:none;max-width:520px;margin:0 auto;padding:20px 20px 40px;min-height:100vh}
+.view.active{display:block;animation:fadeIn .45s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+h1,h2,h3,.serif{font-family:'Noto Serif SC',Georgia,'Songti SC',serif}
+
+.topline{display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0 18px}
+.topline::before,.topline::after{content:"";height:1px;width:44px;background:linear-gradient(90deg,transparent,var(--gold));}
+.topline::after{background:linear-gradient(90deg,var(--gold),transparent)}
+.topline span{font-size:12px;letter-spacing:5px;color:var(--gold);font-weight:500}
+
+/* ===== 首页 ===== */
+.hero{margin-top:26px;text-align:center}
+.hero h1{font-size:33px;font-weight:900;letter-spacing:2px;line-height:1.4;
+  background:linear-gradient(180deg,#f4e3a1 0%,#d4af37 55%,#9a7420 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 2px 24px rgba(212,175,55,.18)}
+.hero .sub{margin-top:14px;font-size:14.5px;color:var(--mut)}
+.hero .sub b{color:var(--gold);font-weight:600}
+.sinsrow{display:grid;grid-template-columns:repeat(4,auto);justify-content:center;gap:9px;margin:24px 0 8px}
+.sin-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;
+  background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);font-size:12.5px}
+.sin-chip i{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.vtrowo{margin:10px 0 6px;font-size:12px;letter-spacing:4px;color:var(--mut);text-align:center}
+.cta{display:block;width:100%;max-width:320px;margin:26px auto 0;padding:16px;border-radius:14px;
+  font-size:17px;font-weight:700;letter-spacing:3px;color:#171226;
+  background:linear-gradient(180deg,#f0d47c 0%,#d4af37 60%,#b8860b 100%);
+  box-shadow:0 10px 30px rgba(212,175,55,.25),inset 0 1px 0 rgba(255,255,255,.5);
+  transition:transform .15s ease}
+.cta:active{transform:scale(.97)}
+.hero .hint{margin-top:18px;font-size:12px;color:rgba(154,144,179,.75)}
+.hero .hint b{color:#f87171;font-weight:500}
+.hero-note{margin-top:30px;padding:14px 16px;border-radius:12px;border:1px dashed var(--line);
+  font-size:12.5px;color:var(--mut);text-align:center}
+
+/* ===== 答题页 ===== */
+.quiz-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.backbtn{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.14);
+  color:var(--mut);font-size:18px;flex:none;display:flex;align-items:center;justify-content:center;transition:.15s}
+.backbtn:active{background:rgba(255,255,255,.08)}
+.quiz-head .step{font-size:14px;color:var(--mut)}
+.quiz-head .step b{color:var(--gold);font-size:17px;font-family:'Noto Serif SC',serif}
+.pbar{flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.09);overflow:hidden}
+.pbar i{display:block;height:100%;width:8.33%;border-radius:4px;background:linear-gradient(90deg,var(--gold2),var(--gold));transition:width .35s ease}
+.q-num{font-size:12px;letter-spacing:3px;color:var(--gold);margin-top:16px}
+.q-title{font-size:20px;font-weight:700;line-height:1.55;margin:12px 0 4px;font-family:'Noto Serif SC',serif}
+.q-tip{font-size:12px;color:var(--mut);margin-bottom:16px}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt{display:block;width:100%;text-align:left;padding:14px 15px 14px 16px;min-height:62px;
+  border-radius:13px;border:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  transition:border-color .15s,transform .1s}
+.opt:active{transform:scale(.985);border-color:var(--gold)}
+.opt.selected{border-color:var(--gold);background:linear-gradient(180deg,rgba(212,175,55,.16),rgba(212,175,55,.06));box-shadow:0 0 0 1px rgba(212,175,55,.4)}
+.opt .o-main{font-size:15px;font-weight:500;line-height:1.5}
+.opt .o-sub{font-size:12px;color:var(--mut);line-height:1.55;margin-top:5px}
+.qnav{display:flex;gap:12px;margin-top:22px}
+.qnav-btn{flex:1;padding:14px;border-radius:13px;font-size:15px;font-weight:700;letter-spacing:1px;
+  border:1px solid rgba(255,255,255,.14);color:var(--mut);background:rgba(255,255,255,.03);transition:.15s}
+.qnav-btn.primary{color:#171226;background:linear-gradient(180deg,#f0d47c,#d4af37 60%,#b8860b);border:none;box-shadow:0 6px 18px rgba(212,175,55,.2)}
+.qnav-btn.disabled{opacity:.35;pointer-events:none}
+.qnav-btn:active{transform:scale(.97)}
+
+/* ===== 密码门 ===== */
+.lock{max-width:340px;margin:16vh auto 0;text-align:center;padding:38px 26px 30px;border-radius:18px;
+  background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);
+  box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.lock-icon{width:50px;height:50px;color:var(--gold);margin-bottom:14px}
+.lock h1{font-size:22px;font-weight:900;letter-spacing:2px;
+  background:linear-gradient(180deg,#f4e3a1,#d4af37 60%,#9a7420);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lock-sub{font-size:13px;color:var(--mut);margin-top:8px}
+.lock-input{width:100%;margin-top:22px;padding:14px 16px;border-radius:12px;font-size:16px;text-align:center;letter-spacing:6px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:var(--ink);outline:none;transition:border-color .2s}
+.lock-input:focus{border-color:var(--gold)}
+.lock-input.err{border-color:#f87171;animation:shake .35s}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.lock-btn{width:100%;margin-top:16px;padding:14px;border-radius:12px;font-size:16px;font-weight:700;letter-spacing:3px;
+  color:#171226;background:linear-gradient(180deg,#f0d47c,#d4af37 60%,#b8860b);box-shadow:0 8px 24px rgba(212,175,55,.2)}
+.lock-btn:active{transform:scale(.98)}
+.lock-err{min-height:20px;font-size:12.5px;color:#f87171;margin-top:12px}
+
+/* ===== 结果页 ===== */
+.res-top{text-align:center;margin-top:14px}
+.res-label{font-size:12px;letter-spacing:6px;color:var(--mut)}
+.res-main{display:flex;justify-content:center;align-items:center;gap:26px;margin:10px 0 4px}
+.res-item{flex:1;max-width:190px}
+.res-item .r-k{font-size:11px;letter-spacing:3px;color:var(--mut)}
+.res-item .r-v{font-size:44px;font-weight:900;line-height:1.2;margin-top:2px;font-family:'Noto Serif SC',serif}
+.res-item .r-en{font-size:10px;letter-spacing:3px;opacity:.7;margin-top:2px}
+.res-vs{font-family:'Noto Serif SC',serif;font-size:15px;color:var(--gold)}
+.res-desc{padding:18px;border-radius:14px;background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.09);margin-top:20px;font-size:14.5px;color:#d9d2e6}
+.res-quote{margin-top:14px;padding:14px 16px;border-radius:14px;border-left:3px solid var(--gold);
+  background:linear-gradient(90deg,rgba(212,175,55,.12),transparent 70%);
+  font-family:'Noto Serif SC',serif;font-size:15px;color:#f0e6c8;font-weight:600}
+.res-virtue{margin-top:14px;padding:14px 16px;border-radius:14px;
+  background:linear-gradient(90deg,rgba(52,211,153,.10),transparent 70%);
+  border-left:3px solid #34d399}
+.res-virtue .v-k{font-size:11px;letter-spacing:3px;color:#34d399;font-weight:700}
+.res-virtue .v-t{font-size:14px;color:#d9d2e6;margin-top:6px}
+.hidden-sin{margin-top:14px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);
+  padding:11px 14px;border-radius:12px;border:1px dashed var(--line);flex-wrap:wrap}
+.hidden-sin b{font-weight:700}
+.radar-wrap{margin-top:24px;text-align:center}
+.radar-wrap h3{font-size:15px;color:var(--gold);letter-spacing:2px;margin-bottom:6px}
+.radar-wrap .tip{font-size:11.5px;color:var(--mut);margin-top:4px}
+.sharebtn{display:block;width:100%;margin-top:22px;padding:15px;border-radius:14px;
+  font-size:15.5px;font-weight:700;letter-spacing:2px;color:#171226;
+  background:linear-gradient(180deg,#f0d47c,#d4af37 60%,#b8860b);
+  box-shadow:0 8px 24px rgba(212,175,55,.22)}
+.sharebtn:active{transform:scale(.98)}
+.wechat{margin-top:16px;padding:18px;border-radius:14px;background:rgba(74,222,128,.06);
+  border:1px solid rgba(74,222,128,.22);text-align:center}
+.wechat .t{font-size:14px;font-weight:700;color:#86efac}
+.wechat .d{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.7}
+.wechat .id{display:inline-block;margin-top:10px;padding:7px 16px;border-radius:8px;
+  background:rgba(74,222,128,.12);color:#86efac;font-weight:700;font-size:14px;letter-spacing:1px}
+.retry{margin-top:12px;padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+  font-size:14px;color:var(--mut);width:100%}
+.toast{position:fixed;left:50%;bottom:44px;transform:translateX(-50%) translateY(20px);
+  background:#2a2340;color:var(--ink);padding:11px 22px;border-radius:999px;font-size:13.5px;
+  border:1px solid var(--line);opacity:0;pointer-events:none;transition:.3s;z-index:99;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{text-align:center;font-size:11px;color:rgba(154,144,179,.5);margin-top:32px;padding-bottom:10px}
+@media (min-width:768px){
+  .view{padding:32px 32px 48px}
+  .hero h1{font-size:44px}
+  .q-title{font-size:22px}
+  .opt .o-main{font-size:15.5px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app">
+
+  <!-- ===== 视图：密码门 ===== -->
+  <section id="view-lock" class="view active">
+    <div class="lock">
+      <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z" fill="currentColor"/></svg>
+      <h1>七宗罪 × 七美德</h1>
+      <p class="lock-sub">输入密码，解锁你的人格测试</p>
+      <input class="lock-input" id="lock-input" type="password" inputmode="numeric" placeholder="请输入密码" maxlength="6" autocomplete="off">
+      <button class="lock-btn" onclick="unlock()">进入测试</button>
+      <p class="lock-err" id="lock-err"></p>
+    </div>
+    <footer>七宗罪 × 七美德测试 · 你的原罪与光面</footer>
+  </section>
+
+  <!-- ===== 视图：首页 ===== -->
+  <section id="view-home" class="view">
+    <div class="topline"><span>七宗罪 × 七美德 · 人格测试</span></div>
+    <div class="hero">
+      <h1>你的原罪与光面<br>是什么组合？</h1>
+      <p class="sub">20 道题 · 同时测出你的<b>原罪</b>与<b>美德</b>，附 14 维人格图谱</p>
+      <div class="sinsrow" id="sins-row"></div>
+      <div class="vtrowo">— 七美德 —</div>
+      <div class="sinsrow" id="vts-row"></div>
+      <button class="cta" onclick="startQuiz()">开始测试</button>
+      <p class="hint">测完把结果发到评论区，看看谁是评论区第一<b>「暴怒」</b></p>
+    </div>
+    <div class="hero-note">纯娱乐向人格测试 · 罪与美德是一体两面<br>测出来的不是好坏，是你藏起来的那一面</div>
+    <footer>七宗罪 × 七美德测试 · 你的原罪与光面</footer>
+  </section>
+
+  <!-- ===== 视图：答题 ===== -->
+  <section id="view-quiz" class="view">
+    <div class="quiz-head">
+      <button class="backbtn" onclick="goHome()" aria-label="返回首页">‹</button>
+      <div class="step"><b id="q-cur">1</b><span id="q-total"> / 20</span></div>
+      <div class="pbar"><i id="q-bar" style="width:8.33%"></i></div>
+    </div>
+    <div id="quiz-body"></div>
+  </section>
+
+  <!-- ===== 视图：结果 ===== -->
+  <section id="view-result" class="view">
+    <div id="result-body"></div>
+  </section>
+
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================================================================
+ * 七宗罪 × 七美德人格测试 · 单文件自包含版
+ * 修改微信号：搜索 WECHAT_ID，替换为你的微信号即可
+ * ================================================================ */
+var WECHAT_ID = "这里填你的微信号";   // ← 改成你的微信号
+var WECHAT_NOTE = "添加后回复「罪案档案」，领取你的专属深度解读";
+
+/* 14 维：7 罪 + 7 美德，罪与对应美德交错排列（雷达图同序） */
+var DIMS = [
+  {key:"pride",    name:"傲慢", en:"PRIDE",    group:"sin", color:"#a78bfa"},
+  {key:"humility", name:"谦卑", en:"HUMILITY", group:"virtue", color:"#818cf8"},
+  {key:"envy",     name:"嫉妒", en:"ENVY",     group:"sin", color:"#4ade80"},
+  {key:"charity",  name:"仁爱", en:"CHARITY",  group:"virtue", color:"#2dd4bf"},
+  {key:"wrath",    name:"暴怒", en:"WRATH",    group:"sin", color:"#f87171"},
+  {key:"patience", name:"温和", en:"PATIENCE", group:"virtue", color:"#7dd3fc"},
+  {key:"sloth",    name:"懒惰", en:"SLOTH",    group:"sin", color:"#94a3b8"},
+  {key:"diligence",name:"勤奋", en:"DILIGENCE",group:"virtue", color:"#a3e635"},
+  {key:"greed",    name:"贪婪", en:"GREED",    group:"sin", color:"#fbbf24"},
+  {key:"generosity",name:"慷慨",en:"GENEROSITY",group:"virtue", color:"#facc15"},
+  {key:"gluttony", name:"暴食", en:"GLUTTONY", group:"sin", color:"#fb923c"},
+  {key:"temperance",name:"节制",en:"TEMPERANCE",group:"virtue", color:"#5eead4"},
+  {key:"lust",     name:"色欲", en:"LUST",     group:"sin", color:"#f472b6"},
+  {key:"chastity", name:"贞洁", en:"CHASTITY", group:"virtue", color:"#e0e7ff"}
+];
+var DESC = {
+  pride:    {text:"你不需要被认可，因为你就是标准。自尊是你的铠甲，也是你最脆弱的软肋——低头对你来说比失败更难。真正强大的人，不需要把别人踩在脚下，而你已经足够耀眼。", quote:"我不是傲慢，我只是懒得掩饰优越。", mate:"greed"},
+  envy:     {text:"你的眼睛总在别人的生活里，却忘了自己的剧本同样精彩。你在意的不是那件东西本身，而是那个「被偏爱」的位置。把目光收回来，你的赛道没人能替你跑。", quote:"我不是嫉妒，我只是不甘心。", mate:"pride"},
+  wrath:    {text:"你是一座活火山，平静时无害，爆发时天崩地裂。愤怒是你的武器，也是伤你最深的东西。试着在爆发前深呼吸三秒，你会赢得比吵架更多的东西。", quote:"我不是脾气差，我只是懒得忍。", mate:"gluttony"},
+  sloth:    {text:"你不是懒，你是把能量留给真正重要的事——虽然你还没想好那是什么。躺平是你的天赋，但别让舒适区变成天花板。动一下，也许世界会不一样。", quote:"我不是懒，我是在蓄力。", mate:"greed"},
+  greed:    {text:"你的欲望像深渊，永远填不满。你想要更多，是因为害怕不够——这是你的动力，也是你的枷锁。学会停下来看看自己拥有的，你才会发现早就赢了很多。", quote:"我不是贪心，我只是想要得更多。", mate:"pride"},
+  gluttony: {text:"你治愈自己的方式，是把情绪吃进肚子里。美食是你的避难所，但别让胃成为情绪的垃圾桶。你值得被好好对待，而不是靠一顿大餐来安慰。", quote:"我不是能吃，我只是在安慰自己。", mate:"lust"},
+  lust:     {text:"你对美和吸引力有天生的直觉，感官的愉悦是你的氧气。但别让一时的上头，遮蔽了你真正渴望的深刻连接。你最该好好爱的，是那个完整的自己。", quote:"我不是花心，我只是审美在线。", mate:"wrath"},
+  humility:    {text:"真正的强大不需要证明。你肯低头，是因为你心里装得下别人——这份柔软，是见过世面的人才有的从容。", quote:"我不是没主见，我只是把别人放在心上。"},
+  charity:     {text:"你习惯先把善意递出去，哪怕世界对你并不温柔。你是人群里让气氛变暖的那个人，这比任何才华都稀缺。", quote:"我不是老好人，我只是相信善意会绕回来。"},
+  patience:    {text:"你很少被真正激怒，不是没脾气，是不想为不值得的事消耗自己。你的平静，是筛选过后的选择。", quote:"我不是没脾气，我只是懒得跟不值得的事较劲。"},
+  diligence:   {text:"你把努力当成日常，别人羡慕结果，你享受过程。你不声不响，但每一步都算数。", quote:"我不是内卷，我只是想对得起自己。"},
+  generosity:  {text:"你愿意分享，不是因为拥有很多，而是因为你觉得已经足够。你松开手的那一刻，世界反而更靠近你。", quote:"我不是傻大方，我只是知道自己已经足够。"},
+  temperance:  {text:"你在欲望面前刹得住车，这是大多数人学不会的自律。你对自己有分寸，对生活就有底气。", quote:"我不是没欲望，我只是比欲望清醒。"},
+  chastity:    {text:"你对亲密关系认真且审慎，不将就、不轻率。你要的不是一时欢愉，而是灵魂合拍的深刻连接。", quote:"我不是挑剔，我只是不愿意将就。"}
+};
+var QUESTIONS = [
+  {q:"深夜刷到讨厌的人晒了辆豪车，你：", tip:"凭第一反应选，别想太多", opts:[
+    {k:"envy",  t:"翻完 TA 所有动态，越看越不服", d:"凭什么他配"},
+    {k:"patience", t:"划走，睡前不看糟心事", d:"与我无关，不值得占用情绪"},
+    {k:"diligence", t:"打开备忘录列目标：我也要搞钱", d:"羡慕不如行动"},
+    {k:"charity", t:"顺手点个赞，面子给足", d:"人前留一线"}]},
+  {q:"公司团建，老板点名让你表演节目，你：", tip:"心里话是什么，就选什么", opts:[
+    {k:"pride", t:"上台就上台，这本来就是我的主场", d:"被看见是应得的"},
+    {k:"humility", t:"往人群后面缩，千万别点我", d:"我不配占用大家的注意"},
+    {k:"wrath", t:"心里翻白眼，脸上还得笑", d:"凭什么是我"},
+    {k:"charity", t:"上呗，活跃气氛也算贡献", d:"大家开心就好"}]},
+  {q:"自助餐甜品山当前，你：", tip:"没人看见的时候，你会怎么选", opts:[
+    {k:"gluttony", t:"直接开炫，吃到扶墙出", d:"来都来了"},
+    {k:"temperance", t:"挑两块最爱的，优雅离场", d:"够了就是够了"},
+    {k:"greed", t:"先绕场一周，看哪个最值回票价", d:"要就要最好的"},
+    {k:"generosity", t:"给朋友夹满一盘子，分享才是快乐", d:"好东西要一起吃"}]},
+  {q:"有人背后说你坏话，还传到你耳朵里，你：", tip:"第一反应是哪种？", opts:[
+    {k:"wrath", t:"当场对质，谁也别想让我受气", d:"这口气咽不下"},
+    {k:"patience", t:"冷笑一声，不配我动气", d:"我的时间更值钱"},
+    {k:"pride", t:"懒得解释，你们不配评价我", d:"我的价值不需要别人盖章"},
+    {k:"humility", t:"先反思自己，是不是哪里没做好", d:"有则改之"}]},
+  {q:"周五晚上，你终于有了两小时完整自由时间，你：", tip:"没有监督的一天，你会怎么过", opts:[
+    {k:"sloth", t:"瘫倒刷短视频，谁都别叫我", d:"躺平是一种充电"},
+    {k:"diligence", t:"出门锻炼，把状态拉满", d:"自律让我快乐"},
+    {k:"lust", t:"从头到脚精致地犒劳自己", d:"感官的愉悦是氧气"},
+    {k:"gluttony", t:"做一顿大餐，味蕾就是我的快乐", d:"好好吃饭好好爱自己"}]},
+  {q:"心仪对象约你吃饭，你提前两小时开始：", tip:"你为心动做的事，暴露真实的你", opts:[
+    {k:"pride", t:"精心打扮，必须让 TA 记住我", d:"出场即巅峰"},
+    {k:"patience", t:"准时就好，舒服自然最重要", d:"不刻意才长久"},
+    {k:"generosity", t:"准备小礼物，心意要到位", d:"付出让人踏实"},
+    {k:"diligence", t:"提前踩点餐厅路线，不容有失", d:"万无一失才安心"}]},
+  {q:"同事把你的功劳抢去汇报了，你：", tip:"职场修罗场，测你的底色", opts:[
+    {k:"pride", t:"找机会把事实讲清楚，是我的就是我的", d:"功过要分明"},
+    {k:"charity", t:"算了，团队好就是我好", d:"不争也是一种格局"},
+    {k:"wrath", t:"记着，下次别想再占我便宜", d:"这笔账我记下了"},
+    {k:"diligence", t:"更努力，能力上碾压他", d:"实力是最好的回击"}]},
+  {q:"深夜打开购物 App，购物车里躺着一件很贵的东西，你：", tip:"冲动与理性，都在你手里", opts:[
+    {k:"greed", t:"喜欢就买，钱是挣来花的", d:"我配得上好东西"},
+    {k:"temperance", t:"加进收藏夹，冲动消费是大忌", d:"冷静两天再说"},
+    {k:"envy", t:"悄悄买，别让任何人知道", d:"怕被比较，也怕被说"},
+    {k:"diligence", t:"先比价研究，等最划算的时机", d:"钱要花在刀刃上"}]},
+  {q:"朋友搬家，叫你帮忙，你：", tip:"人情世故里见真章", opts:[
+    {k:"charity", t:"到，这种忙必须帮", d:"朋友就是拿来靠的"},
+    {k:"sloth", t:"看心情，别耽误我自己的事", d:"我不想动就是不想动"},
+    {k:"diligence", t:"麻利干完，效率就是我的名片", d:"干就干得漂亮"},
+    {k:"greed", t:"帮忙可以，情分我得记着", d:"人情账要算清"}]},
+  {q:"你中了 5000 块彩票，你：", tip:"意外之财，暴露最真实的分配逻辑", opts:[
+    {k:"generosity", t:"请朋友搓一顿，快乐要分享", d:"独乐乐不如众乐乐"},
+    {k:"temperance", t:"存起来，一分都不能乱花", d:"未雨绸缪"},
+    {k:"lust", t:"买点一直想要的东西，犒劳自己", d:"及时行乐"},
+    {k:"envy", t:"谁也不说，闷声发大财", d:"怕被惦记，也怕被比下去"}]},
+  {q:"一段暧昧关系摆在面前，你：", tip:"面对心动的本能反应", opts:[
+    {k:"lust", t:"上头就冲，感觉对了最重要", d:"心动就是信号"},
+    {k:"chastity", t:"宁缺毋滥，想清楚再开始", d:"不将就，不轻率"},
+    {k:"greed", t:"多线观察，不把宝押在一处", d:"选择权要握在自己手里"},
+    {k:"patience", t:"慢慢来，时间会给出答案", d:"感情急不得"}]},
+  {q:"和 TA 吵架后，TA 主动求和，你：", tip:"亲密关系里的真实姿态", opts:[
+    {k:"gluttony", t:"先搓一顿，情绪就过了", d:"没有什么是一顿饭解决的"},
+    {k:"charity", t:"把话说开，关系比面子重要", d:"沟通是解药"},
+    {k:"pride", t:"冷战，谁先低头谁输", d:"我的骄傲不允许"},
+    {k:"chastity", t:"认真复盘，这段关系值得我用心", d:"忠诚是选择，不是本能"}]},
+  {q:"朋友发来消息：「帮我写个好评，动动手指的事」，你：", tip:"举手之劳见人品", opts:[
+    {k:"humility", t:"虽然有点麻烦，还是写了——能帮就帮", d:"小事也认真对待"},
+    {k:"sloth", t:"已读不回，等会儿再说", d:"反正不差我一个"},
+    {k:"charity", t:"认真写了一段，怕店家看不到", d:"善意要给足"},
+    {k:"patience", t:"不急，晚点有空慢慢写", d:"答应了就一定办好"}]},
+  {q:"深夜，前任发来一句「在吗？」，你：", tip:"深夜消息最考验人心", opts:[
+    {k:"chastity", t:"不回复，过去了就是过去了", d:"边界感是底线"},
+    {k:"lust", t:"心跳漏了一拍，还是点开了", d:"旧情难忘"},
+    {k:"wrath", t:"想起就烦，直接拉黑", d:"别来打扰我"},
+    {k:"envy", t:"点进 TA 主页，看 TA 过得如何", d:"忍不住比较"}]},
+  {q:"公司评优秀员工，你觉得自己够格但没人提你，你：", tip:"被忽视的那一刻，你最真实", opts:[
+    {k:"humility", t:"算了，做好自己的事就行", d:"不争不抢"},
+    {k:"envy", t:"心里不舒服，凭什么是 TA", d:"我也很努力啊"},
+    {k:"pride", t:"主动开口，我值得这个名额", d:"机会要自己争取"},
+    {k:"generosity", t:"恭喜 TA，下次我也加油", d:"真心为别人高兴"}]},
+  {q:"周末早晨，阳光正好，你醒来第一件事：", tip:"没有闹钟的一天，暴露你的底色", opts:[
+    {k:"sloth", t:"翻个身继续睡，被窝封印", d:"周末不躺平算辜负"},
+    {k:"diligence", t:"起床做计划，把一天安排满", d:"时间要花在刀刃上"},
+    {k:"gluttony", t:"点份丰盛早餐，边吃边刷剧", d:"好好犒劳自己"},
+    {k:"temperance", t:"简单洗漱，出门走走呼吸新鲜空气", d:"适量才是好"}]},
+  {q:"你发现好朋友背着你约了你的暗恋对象，你：", tip:"信任被触碰的那一刻", opts:[
+    {k:"chastity", t:"难受但不说破，关系比情绪重要", d:"有些话烂在肚子里"},
+    {k:"greed", t:"从此留个心眼，不能全信 TA", d:"人心隔肚皮"},
+    {k:"charity", t:"可能他们只是正常见面，别多想", d:"先往好处想"},
+    {k:"generosity", t:"如果 TA 们合适，我祝福", d:"成全也是爱"}]},
+  {q:"你被拉进一个全是陌生人的群，群主@你发言，你：", tip:"社交场合的真实姿态", opts:[
+    {k:"humility", t:"先看大家聊什么，不抢话", d:"先听再说"},
+    {k:"sloth", t:"潜水，偶尔冒个泡", d:"懒得社交"},
+    {k:"patience", t:"不急着回，想好了再说", d:"发言要负责"},
+    {k:"generosity", t:"热情接话，活跃一下气氛", d:"别让群冷场"}]},
+  {q:"你发现 TA 对你忽冷忽热，你：", tip:"感情里的温差，你怎么应对", opts:[
+    {k:"chastity", t:"收回热情，不做廉价的备选", d:"我的真心很贵"},
+    {k:"wrath", t:"直接问清楚，别玩这套", d:"有话直说"},
+    {k:"gluttony", t:"找朋友吐槽，边吃边发泄", d:"情绪靠吃治愈"},
+    {k:"lust", t:"反而更想征服 TA", d:"越难越上头"}]},
+  {q:"年终奖到账，比预期多了一笔，你：", tip:"意外之财怎么花，见真章", opts:[
+    {k:"pride", t:"这是实力的证明，值得庆祝", d:"我配得上"},
+    {k:"envy", t:"打听到同事的，怕自己不是最高", d:"人比人气死人"},
+    {k:"greed", t:"研究投资，让钱生钱", d:"财富要积累"},
+    {k:"lust", t:"报个一直想去的旅行", d:"及时行乐"}]}
+];
+
+var answers = {};
+var cur = 0;
+
+function $(id){return document.getElementById(id)}
+function show(id){document.querySelectorAll(".view").forEach(function(v){v.classList.remove("active")});$(id).classList.add("active");window.scrollTo(0,0)}
+function toast(msg){var t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._tm);t._tm=setTimeout(function(){t.classList.remove("show")},2200)}
+function dim(key){for(var i=0;i<DIMS.length;i++){if(DIMS[i].key===key)return DIMS[i]}return DIMS[0]}
+
+function renderChips(){
+  var s="",v="";
+  DIMS.forEach(function(d){
+    var chip='<span class="sin-chip"><i style="background:'+d.color+'"></i>'+d.name+'</span>';
+    if(d.group==="sin"){s+=chip}else{v+=chip}
+  });
+  $("sins-row").innerHTML=s;
+  $("vts-row").innerHTML=v;
+}
+function startQuiz(){cur=0;answers={};renderQuiz();show("view-quiz")}
+function goHome(){show("view-home")}
+var PASSCODE="7809";
+function unlock(){
+  var v=$("lock-input").value.trim();
+  var err=$("lock-err");
+  if(v===PASSCODE){
+    err.textContent="";$("lock-input").classList.remove("err");
+    show("view-home");
+  }else{
+    $("lock-input").classList.add("err");
+    err.textContent=v===""?"请输入密码":"密码不对，再试试";
+    setTimeout(function(){$("lock-input").classList.remove("err")},400);
+  }
+}
+function renderQuiz(){
+  var q=QUESTIONS[cur];
+  $("q-cur").textContent=cur+1;
+  $("q-total").textContent=" / "+QUESTIONS.length;
+  $("q-bar").style.width=((cur+1)/QUESTIONS.length*100)+"%";
+  var h='<div class="q-num">QUESTION '+(cur+1)+' / '+QUESTIONS.length+'</div>'+
+        '<h2 class="q-title">'+q.q+'</h2>'+
+        '<div class="q-tip">'+q.tip+'</div><div class="opts">';
+  q.opts.forEach(function(o,i){
+    var d=dim(o.k);
+    var sel=answers[cur]===o.k?" selected":"";
+    h+='<button class="opt'+sel+'" style="border-left:3px solid '+d.color+'" onclick="pick('+cur+','+i+')">'+
+      '<span class="o-main">'+o.t+'</span>'+
+      '<span class="o-sub">'+o.d+'</span></button>';
+  });
+  h+='</div>'+
+    '<div class="qnav">'+
+      '<button class="qnav-btn'+(cur===0?" disabled":"")+'" onclick="prevQ()">上一题</button>'+
+      '<button class="qnav-btn primary" onclick="nextQ()">'+(cur===QUESTIONS.length-1?"查看结果":"下一题")+'</button>'+
+    '</div>';
+  $("quiz-body").innerHTML=h;
+}
+function pick(qi,oi){
+  answers[qi]=QUESTIONS[qi].opts[oi].k;
+  renderQuiz();
+}
+function prevQ(){if(cur>0){cur--;renderQuiz()}}
+function nextQ(){
+  if(cur<QUESTIONS.length-1){cur++;renderQuiz()}
+  else{showResult()}
+}
+function scoreOf(key){var n=0;for(var qi in answers){if(answers[qi]===key){n++}}return n}
+function ranked(group){
+  var arr=DIMS.filter(function(d){return d.group===group}).map(function(d){return {key:d.key,n:scoreOf(d.key)}});
+  arr.sort(function(a,b){return b.n-a.n});
+  return arr;
+}
+function showResult(){
+  var rs=ranked("sin"), rv=ranked("virtue");
+  var mainSin=rs[0], hideSin=rs[1], mainVt=rv[0];
+  var sD=DESC[mainSin.key], vD=DESC[mainVt.key];
+  var sin=dim(mainSin.key), hid=dim(hideSin.key), vt=dim(mainVt.key);
+  var mate=dim(DESC[mainSin.key].mate);
+  var h='<div class="res-top">'+
+      '<div class="res-label">— 你的原罪与美德 —</div>'+
+      '<div class="res-main">'+
+        '<div class="res-item"><div class="r-k">原罪</div><div class="r-v" style="color:'+sin.color+'">'+sin.name+'</div><div class="r-en" style="color:'+sin.color+'">'+sin.en+'</div></div>'+
+        '<div class="res-vs">×</div>'+
+        '<div class="res-item"><div class="r-k">美德</div><div class="r-v" style="color:'+vt.color+'">'+vt.name+'</div><div class="r-en" style="color:'+vt.color+'">'+vt.en+'</div></div>'+
+      '</div></div>'+
+    '<div class="res-desc">'+sD.text+'</div>'+
+    '<div class="res-quote">「'+sD.quote+'」</div>'+
+    '<div class="res-virtue"><div class="v-k">你的光面 · '+vt.name+'</div><div class="v-t">'+vD.text+'<br>「'+vD.quote+'」</div></div>'+
+    '<div class="hidden-sin">隐藏原罪：<b style="color:'+hid.color+'">'+hid.name+'</b>　·　最合拍的罪友：<b style="color:'+mate.color+'">'+mate.name+'</b></div>'+
+    '<div class="radar-wrap"><h3>十四维人格图谱</h3>'+radarSVG()+'<div class="tip">罪在外、德在里，你的天平偏向哪一边？</div></div>'+
+    '<button class="sharebtn" onclick="copyShare(\''+sin.name+'\',\''+vt.name+'\')">复制结果，去评论区见真章</button>'+
+    '<div class="wechat"><div class="t">想要专属「罪案档案」深度解读？</div>'+
+      '<div class="d">'+WECHAT_NOTE+'</div><span class="id">'+WECHAT_ID+'</span></div>'+
+    '<button class="retry" onclick="startQuiz()">再测一次</button>';
+  $("result-body").innerHTML=h;
+  show("view-result");
+}
+function radarSVG(){
+  var N=DIMS.length,CX=130,CY=130,R=88,MAX=6;
+  function pt(i,r){var a=-Math.PI/2+i*2*Math.PI/N;return [CX+r*Math.cos(a),CY+r*Math.sin(a)]}
+  var grid="",labels="";
+  for(var ring=1;ring<=3;ring++){
+    var rr=R*ring/3,pts="";
+    for(var i=0;i<N;i++){var p=pt(i,rr);pts+=p[0].toFixed(1)+","+p[1].toFixed(1)+" "}
+    grid+='<polygon points="'+pts+'" fill="none" stroke="rgba(212,175,55,0.14)" stroke-width="1"/>';
+  }
+  for(var i=0;i<N;i++){
+    var p=pt(i,R);grid+='<line x1="'+CX+'" y1="'+CY+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="rgba(212,175,55,0.09)" stroke-width="1"/>';
+    var lp=pt(i,R+17),d=DIMS[i];
+    labels+='<text x="'+lp[0].toFixed(1)+'" y="'+lp[1].toFixed(1)+'" text-anchor="middle" dominant-baseline="middle" font-size="9.5" font-family="Noto Sans SC,sans-serif" fill="'+d.color+'">'+d.name+' '+scoreOf(d.key)+'</text>';
+  }
+  var dataPts="";
+  for(var i=0;i<N;i++){var rr=R*Math.min(1,scoreOf(DIMS[i].key)/MAX),p=pt(i,rr);dataPts+=p[0].toFixed(1)+","+p[1].toFixed(1)+" "}
+  return '<svg viewBox="0 0 260 260" role="img" aria-label="十四维人格雷达图" style="width:100%;max-width:380px">'+grid+'<polygon points="'+dataPts+'" fill="rgba(212,175,55,0.22)" stroke="#d4af37" stroke-width="2" stroke-linejoin="round"/>'+labels+'</svg>';
+}
+function copyShare(sin,vt){
+  var txt="我测出：原罪「"+sin+"」× 美德「"+vt+"」——七宗罪×七美德人格测试，你是什么组合？测完评论区见真章";
+  function ok(){toast("已复制，去评论区晒结果吧")}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(ok,function(){fallback(txt)});
+  }else{fallback(txt)}
+  function fallback(t){
+    var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);
+    ta.select();try{document.execCommand("copy");ok()}catch(e){toast("复制失败，请长按手动复制")}
+    document.body.removeChild(ta);
+  }
+}
+renderChips();
+document.getElementById("lock-input").addEventListener("keydown",function(e){if(e.key==="Enter"){unlock()}});
+</script>
+</body>
+</html>
