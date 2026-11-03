@@ -134,6 +134,12 @@ h1,h2,h3,.serif{font-family:'Noto Serif SC',Georgia,'Songti SC',serif}
   background:linear-gradient(180deg,#f0d47c,#d4af37 60%,#b8860b);
   box-shadow:0 8px 24px rgba(212,175,55,.22)}
 .sharebtn:active{transform:scale(.98)}
+.wechat{margin-top:16px;padding:18px;border-radius:14px;background:rgba(74,222,128,.06);
+  border:1px solid rgba(74,222,128,.22);text-align:center}
+.wechat .t{font-size:14px;font-weight:700;color:#86efac}
+.wechat .d{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.7}
+.wechat .id{display:inline-block;margin-top:10px;padding:7px 16px;border-radius:8px;
+  background:rgba(74,222,128,.12);color:#86efac;font-weight:700;font-size:14px;letter-spacing:1px}
 .retry{margin-top:12px;padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
   font-size:14px;color:var(--mut);width:100%}
 .toast{position:fixed;left:50%;bottom:44px;transform:translateX(-50%) translateY(20px);
@@ -346,6 +352,7 @@ var QUESTIONS = [
 
 var answers = {};
 var cur = 0;
+var EGG = false;   // 彩蛋：全部跳过时，懒惰直接拉满
 
 function $(id){return document.getElementById(id)}
 function show(id){document.querySelectorAll(".view").forEach(function(v){v.classList.remove("active")});$(id).classList.add("active");window.scrollTo(0,0)}
@@ -407,13 +414,19 @@ function nextQ(){
   if(cur<QUESTIONS.length-1){cur++;renderQuiz()}
   else{showResult()}
 }
-function scoreOf(key){var n=0;for(var qi in answers){if(answers[qi]===key){n++}}return n}
+function scoreOf(key){
+  if(EGG){if(key==="sloth")return 6;if(key==="diligence")return 1;return 0}
+  var n=0;for(var qi in answers){if(answers[qi]===key){n++}}return n
+}
 function ranked(group){
   var arr=DIMS.filter(function(d){return d.group===group}).map(function(d){return {key:d.key,n:scoreOf(d.key)}});
   arr.sort(function(a,b){return b.n-a.n});
   return arr;
 }
 function showResult(){
+  var skipped=true;
+  for(var qi=0;qi<QUESTIONS.length;qi++){if(answers[qi]){skipped=false;break}}
+  EGG=skipped;
   var rs=ranked("sin"), rv=ranked("virtue");
   var mainSin=rs[0], hideSin=rs[1], mainVt=rv[0];
   var sD=DESC[mainSin.key], vD=DESC[mainVt.key];
