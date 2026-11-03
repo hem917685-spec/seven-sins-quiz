@@ -134,12 +134,6 @@ h1,h2,h3,.serif{font-family:'Noto Serif SC',Georgia,'Songti SC',serif}
   background:linear-gradient(180deg,#f0d47c,#d4af37 60%,#b8860b);
   box-shadow:0 8px 24px rgba(212,175,55,.22)}
 .sharebtn:active{transform:scale(.98)}
-.wechat{margin-top:16px;padding:18px;border-radius:14px;background:rgba(74,222,128,.06);
-  border:1px solid rgba(74,222,128,.22);text-align:center}
-.wechat .t{font-size:14px;font-weight:700;color:#86efac}
-.wechat .d{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.7}
-.wechat .id{display:inline-block;margin-top:10px;padding:7px 16px;border-radius:8px;
-  background:rgba(74,222,128,.12);color:#86efac;font-weight:700;font-size:14px;letter-spacing:1px}
 .retry{margin-top:12px;padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,.14);
   font-size:14px;color:var(--mut);width:100%}
 .toast{position:fixed;left:50%;bottom:44px;transform:translateX(-50%) translateY(20px);
@@ -438,8 +432,6 @@ function showResult(){
     '<div class="hidden-sin">隐藏原罪：<b style="color:'+hid.color+'">'+hid.name+'</b>　·　最合拍的罪友：<b style="color:'+mate.color+'">'+mate.name+'</b></div>'+
     '<div class="radar-wrap"><h3>十四维人格图谱</h3>'+radarSVG()+'<div class="tip">罪在外、德在里，你的天平偏向哪一边？</div></div>'+
     '<button class="sharebtn" onclick="copyShare(\''+sin.name+'\',\''+vt.name+'\')">复制结果，去评论区见真章</button>'+
-    '<div class="wechat"><div class="t">想要专属「罪案档案」深度解读？</div>'+
-      '<div class="d">'+WECHAT_NOTE+'</div><span class="id">'+WECHAT_ID+'</span></div>'+
     '<button class="retry" onclick="startQuiz()">再测一次</button>';
   $("result-body").innerHTML=h;
   show("view-result");
