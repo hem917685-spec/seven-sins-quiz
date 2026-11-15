@@ -348,17 +348,19 @@ var QUESTIONS = [
     {k:"pride", t:"这是实力的证明，值得庆祝", d:"我配得上"},
     {k:"envy", t:"打听到同事的，怕自己不是最高", d:"人比人气死人"},
     {k:"greed", t:"研究投资，让钱生钱", d:"财富要积累"},
-    {k:"lust", t:"报个一直想去的旅行", d:"及时行乐"}]}
+    {k:"lust", t:"报个一直想去的旅行", d:"及时行乐"}]} 
 ];
 
 var answers = {};
 var cur = 0;
 var EGG = false;   // 彩蛋：全部跳过时，懒惰直接拉满
 
-// 各维度在题库中的最大可得选项数（百分制换算分母）
-var MAX_COUNT = {};
-DIMS.forEach(function(d){MAX_COUNT[d.key]=0});
-QUESTIONS.forEach(function(q){q.opts.forEach(function(o){MAX_COUNT[o.k]=(MAX_COUNT[o.k]||0)+1})});
+// 计分模型：每维以 5.0 分为基底；选中该维选项 +1.0，同题落选选项 -0.5；区间 0–10 分
+var BASE_SCORE = 5.0;
+var PICK_BONUS = 1.0;
+var DROP_PENALTY = 0.5;
+var MIN_SCORE = 0, MAX_SCORE = 10;
+function clampScore(v){return Math.max(MIN_SCORE, Math.min(MAX_SCORE, v))}
 
 function $(id){return document.getElementById(id)}
 function show(id){document.querySelectorAll(".view").forEach(function(v){v.classList.remove("active")});$(id).classList.add("active");window.scrollTo(0,0)}
@@ -420,22 +422,27 @@ function nextQ(){
   if(cur<QUESTIONS.length-1){cur++;renderQuiz()}
   else{showResult()}
 }
-function countOf(key){
-  if(EGG){if(key==="sloth")return MAX_COUNT.sloth;if(key==="diligence")return 1;return 0}
-  var n=0;for(var qi in answers){if(answers[qi]===key){n++}}return n
+// 逐题累计各维加减分，返回 0–10 分映射
+var SCORE = {};
+function scoreMap(){
+  var map = {};
+  DIMS.forEach(function(d){map[d.key]=BASE_SCORE});
+  if(EGG){ map.sloth = MAX_SCORE; map.diligence = MIN_SCORE; return map; }
+  QUESTIONS.forEach(function(q,qi){
+    var chosen = answers[qi];
+    if(!chosen) return;                 // 跳过的题不计加减
+    q.opts.forEach(function(o){
+      if(o.k===chosen){ map[o.k]=clampScore(map[o.k]+PICK_BONUS) }
+      else{ map[o.k]=clampScore(map[o.k]-DROP_PENALTY) }
+    });
+  });
+  return map;
 }
-// 归一化到 0–100 分：该维得分率 × 100，每维满分 100
-function scoreOf(key){
-  if(EGG){
-    if(key==="sloth")return 100;
-    if(key==="diligence")return Math.round(1/MAX_COUNT.diligence*100);
-    return 0;
-  }
-  var c=countOf(key),m=MAX_COUNT[key]||1;
-  return Math.round(c/m*100)
-}
+// 取某维 0–10 分（数值）；展示用 fmtScore 保留一位小数
+function scoreOf(key){ return (SCORE[key]!=null?SCORE[key]:BASE_SCORE) }
+function fmtScore(key){ return scoreOf(key).toFixed(1) }
 function ranked(group){
-  var arr=DIMS.filter(function(d){return d.group===group}).map(function(d){return {key:d.key,n:countOf(d.key)}});
+  var arr=DIMS.filter(function(d){return d.group===group}).map(function(d){return {key:d.key,n:scoreOf(d.key)}});
   arr.sort(function(a,b){return b.n-a.n});
   return arr;
 }
@@ -443,45 +450,61 @@ function showResult(){
   var skipped=true;
   for(var qi=0;qi<QUESTIONS.length;qi++){if(answers[qi]){skipped=false;break}}
   EGG=skipped;
+  SCORE=scoreMap();
   var rs=ranked("sin"), rv=ranked("virtue");
   var mainSin=rs[0], hideSin=rs[1], mainVt=rv[0];
   var sD=DESC[mainSin.key], vD=DESC[mainVt.key];
   var sin=dim(mainSin.key), hid=dim(hideSin.key), vt=dim(mainVt.key);
   var mate=dim(DESC[mainSin.key].mate);
   var h='<div class="res-top">'+
-      '<div class="res-label">— 你的原罪与美德 —</div>'+
+      '<div class="res-label">你的画像重点</div>'+
       '<div class="res-main">'+
-        '<div class="res-item"><div class="r-k">原罪</div><div class="r-v" style="color:'+sin.color+'">'+sin.name+'</div><div class="r-en" style="color:'+sin.color+'">'+sin.en+'</div><div class="r-score">'+scoreOf(sin.key)+' 分</div></div>'+
+        '<div class="res-item"><div class="r-k">七宗罪中最突出</div><div class="r-v" style="color:'+sin.color+'">'+sin.name+'</div><div class="r-score">'+fmtScore(sin.key)+'</div></div>'+
         '<div class="res-vs">×</div>'+
-        '<div class="res-item"><div class="r-k">美德</div><div class="r-v" style="color:'+vt.color+'">'+vt.name+'</div><div class="r-en" style="color:'+vt.color+'">'+vt.en+'</div><div class="r-score">'+scoreOf(vt.key)+' 分</div></div>'+
+        '<div class="res-item"><div class="r-k">七美德中最突出</div><div class="r-v" style="color:'+vt.color+'">'+vt.name+'</div><div class="r-score">'+fmtScore(vt.key)+'</div></div>'+
       '</div></div>'+
     '<div class="res-desc">'+sD.text+'</div>'+
     '<div class="res-quote">「'+sD.quote+'」</div>'+
     '<div class="res-virtue"><div class="v-k">你的光面 · '+vt.name+'</div><div class="v-t">'+vD.text+'<br>「'+vD.quote+'」</div></div>'+
     '<div class="hidden-sin">隐藏原罪：<b style="color:'+hid.color+'">'+hid.name+'</b>　·　最合拍的罪友：<b style="color:'+mate.color+'">'+mate.name+'</b></div>'+
-    '<div class="radar-wrap"><h3>十四维人格图谱</h3>'+radarSVG()+'<div class="tip">罪在外、德在里，你的天平偏向哪一边？</div></div>'+
+    '<div class="radar-wrap"><h3>14 维雷达图</h3>'+radarSVG()+'<div class="tip">右侧为七美德，左侧为七宗罪；12 点和 6 点方向留出空隙，点旁数字为 0–10 分。向外延伸表示相关描述更符合你，不代表更好、更坏，也不代表超过了更多人。</div></div>'+
     '<button class="sharebtn" onclick="copyShare(\''+sin.name+'\',\''+vt.name+'\')">复制结果，去评论区见真章</button>'+
     '<button class="retry" onclick="startQuiz()">再测一次</button>';
   $("result-body").innerHTML=h;
   show("view-result");
 }
 function radarSVG(){
-  var N=DIMS.length,CX=130,CY=130,R=88,MAX=100;
-  function pt(i,r){var a=-Math.PI/2+i*2*Math.PI/N;return [CX+r*Math.cos(a),CY+r*Math.sin(a)]}
+  var CX=150,CY=130,R=80,MAX=MAX_SCORE;
+  // 右列七美德（从上到下）、左列七宗罪（从上到下）；12 点与 6 点方向留空
+  var VIRTUE_ORDER=["humility","generosity","chastity","charity","patience","temperance","diligence"];
+  var SIN_ORDER=["pride","greed","lust","envy","wrath","gluttony","sloth"];
+  var ALL=VIRTUE_ORDER.map(function(k,i){return {key:k,side:"v",i:i}})
+          .concat(SIN_ORDER.slice().reverse().map(function(k,ri){return {key:k,side:"s",i:SIN_ORDER.length-1-ri}}));
+  function ang(rec){var sign=rec.side==="v"?1:-1;var deg=-90+sign*(rec.i+1)*(180/8);return deg*Math.PI/180}
+  function pt(rec,r){var a=ang(rec);return [CX+r*Math.cos(a),CY+r*Math.sin(a)]}
   var grid="",labels="";
   for(var ring=1;ring<=3;ring++){
     var rr=R*ring/3,pts="";
-    for(var i=0;i<N;i++){var p=pt(i,rr);pts+=p[0].toFixed(1)+","+p[1].toFixed(1)+" "}
+    ALL.forEach(function(rec){var p=pt(rec,rr);pts+=p[0].toFixed(1)+","+p[1].toFixed(1)+" "});
     grid+='<polygon points="'+pts+'" fill="none" stroke="rgba(212,175,55,0.14)" stroke-width="1"/>';
   }
-  for(var i=0;i<N;i++){
-    var p=pt(i,R);grid+='<line x1="'+CX+'" y1="'+CY+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="rgba(212,175,55,0.09)" stroke-width="1"/>';
-    var lp=pt(i,R+17),d=DIMS[i];
-    labels+='<text x="'+lp[0].toFixed(1)+'" y="'+lp[1].toFixed(1)+'" text-anchor="middle" dominant-baseline="middle" font-size="9.5" font-family="Noto Sans SC,sans-serif" fill="'+d.color+'">'+d.name+' '+scoreOf(d.key)+'</text>';
-  }
-  var dataPts="";
-  for(var i=0;i<N;i++){var rr=R*Math.min(1,scoreOf(DIMS[i].key)/MAX),p=pt(i,rr);dataPts+=p[0].toFixed(1)+","+p[1].toFixed(1)+" "}
-  return '<svg viewBox="0 0 260 260" role="img" aria-label="十四维人格雷达图" style="width:100%;max-width:380px">'+grid+'<polygon points="'+dataPts+'" fill="rgba(212,175,55,0.22)" stroke="#d4af37" stroke-width="2" stroke-linejoin="round"/>'+labels+'</svg>';
+  ALL.forEach(function(rec){
+    var d=dim(rec.key),p=pt(rec,R);
+    grid+='<line x1="'+CX+'" y1="'+CY+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="rgba(212,175,55,0.09)" stroke-width="1"/>';
+    var lp=pt(rec,R+15);
+    var anchor=rec.side==="v"?"start":"end";
+    labels+='<text x="'+lp[0].toFixed(1)+'" y="'+lp[1].toFixed(1)+'" text-anchor="'+anchor+'" dominant-baseline="middle" font-size="9.5" font-family="Noto Sans SC,sans-serif" fill="'+d.color+'">'+d.name+' '+fmtScore(rec.key)+'</text>';
+  });
+  var dataPts="",dots="";
+  ALL.forEach(function(rec){
+    var rr=R*Math.min(1,scoreOf(rec.key)/MAX);
+    var p=pt(rec,rr);
+    dataPts+=p[0].toFixed(1)+","+p[1].toFixed(1)+" ";
+    var d=dim(rec.key);
+    dots+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.6" fill="'+d.color+'"/>';
+  });
+  var fullPoly='<polygon points="'+dataPts+'" fill="rgba(212,175,55,0.20)" stroke="#d4af37" stroke-width="2" stroke-linejoin="round"/>';
+  return '<svg viewBox="0 0 300 260" role="img" aria-label="十四维人格雷达图" style="width:100%;max-width:380px">'+grid+fullPoly+dots+labels+'</svg>';
 }
 function copyShare(sin,vt){
   var txt="我测出：原罪「"+sin+"」× 美德「"+vt+"」——七宗罪×七美德人格测试，你是什么组合？测完评论区见真章";
